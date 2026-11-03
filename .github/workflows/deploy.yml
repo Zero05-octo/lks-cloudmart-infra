@@ -1,0 +1,73 @@
+name: "🚀 Deploy Infrastructure — CloudMart"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.tf'
+  workflow_dispatch:
+
+env:
+  TF_VERSION: "1.9.0"
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+
+jobs:
+  terraform:
+    name: Terraform Plan & Apply
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # ──────────────────────────────────────────────────────
+      # TODO 1: Configure AWS Credentials
+      # Action: aws-actions/configure-aws-credentials@v4
+      # Secrets yang digunakan:
+      #   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+      #   AWS_SESSION_TOKEN, AWS_REGION
+      # ──────────────────────────────────────────────────────
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      # ──────────────────────────────────────────────────────
+      # TODO 2: Terraform Init
+      # Jalankan: terraform init
+      # ──────────────────────────────────────────────────────
+      - name: Terraform Init
+        run: terraform init
+
+      # ──────────────────────────────────────────────────────
+      # TODO 3: Terraform Validate
+      # Jalankan: terraform validate
+      # ──────────────────────────────────────────────────────
+      - name: Terraform Validate
+        run: terraform validate
+
+      # ──────────────────────────────────────────────────────
+      # TODO 4: Terraform Plan
+      # Simpan output plan ke file: tfplan
+      # ──────────────────────────────────────────────────────
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+
+      # ──────────────────────────────────────────────────────
+      # TODO 5: Terraform Apply
+      # Jalankan apply menggunakan file tfplan (hanya di branch main)
+      # ──────────────────────────────────────────────────────
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan

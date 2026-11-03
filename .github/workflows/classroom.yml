@@ -1,0 +1,19 @@
+name: "🏫 Autograding — Infrastructure"
+
+# ⚠️ PERINGATAN: JANGAN UBAH FILE INI!
+# File ini digunakan untuk penilaian otomatis oleh juri.
+# Mengubah file ini berakibat kehilangan poin.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  grade:
+    name: Grade Infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Grade Check
+        run: echo "Grading infrastructure..."
