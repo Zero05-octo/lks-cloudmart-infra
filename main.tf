@@ -255,12 +255,12 @@ resource "aws_elasticache_cluster" "Redis" {
 
 }
 
-data "aws_s3_bucket" "assets_bucket" {
-  bucket = "lks-mart-assets-blitar-revo"
+locals {
+  assets_bucket_name = "lks-mart-assets-blitar-revo"
 }
 
 resource "aws_s3_bucket_versioning" "assets_bucket_versioning" {
-  bucket = data.aws_s3_bucket.assets_bucket.id
+  bucket = local.assets_bucket_name
 
   versioning_configuration {
     status = "Enabled"
@@ -268,7 +268,7 @@ resource "aws_s3_bucket_versioning" "assets_bucket_versioning" {
 }
 
 resource "aws_s3_bucket_public_access_block" "assets_bucket_pab" {
-  bucket = data.aws_s3_bucket.assets_bucket.id
+  bucket = local.assets_bucket_name
 
   block_public_acls       = true
   block_public_policy     = true
@@ -320,7 +320,7 @@ resource "aws_ssm_parameter" "string" {
     "redis-url"         = "redis://${aws_elasticache_cluster.Redis.cache_nodes[0].address}:6379"
     "sqs-url"           = aws_sqs_queue.SQS.url
     "sns-topic-arn"     = aws_sns_topic.notification.arn
-    "s3-bucket"         = data.aws_s3_bucket.assets_bucket.id
+    "s3-bucket"         = local.assets_bucket_name
     "base-url"          = "http://${aws_lb.alb.dns_name}"
     "port-order"        = "3000"
     "port-notification" = "3001"
