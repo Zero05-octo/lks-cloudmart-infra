@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - '**/*.tf'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 env:
