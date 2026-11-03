@@ -48,6 +48,9 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Clean Stuck State
+        run: terraform state rm aws_s3_bucket.assets_bucket || true
+
       # ──────────────────────────────────────────────────────
       # TODO 3: Terraform Validate
       # Jalankan: terraform validate
